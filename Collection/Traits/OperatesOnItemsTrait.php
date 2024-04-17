@@ -100,4 +100,48 @@ trait OperatesOnItemsTrait {
             return !$callback($item , $key);
         }, ARRAY_FILTER_USE_BOTH));
     }
+
+    /**
+     * Filter items based on instance type.
+     *
+     * @param string $className
+     * @return static
+     */
+    public function whereInstanceOf($className)
+    {
+        return $this->filter(function ($item) use ($className) {
+            return $item instanceof $className;
+        });
+    }
+    
+    /**
+     * Return items where the given key's value matches the provided value strictly.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return static
+     */
+    public function whereStrict($key, $value)
+    {
+        return new static(array_filter($this->items, function ($item) use ($key, $value) {
+            return isset($item->$key) && $item->$key === $value && gettype($item->$key) === gettype($value);
+        }));
+    }
+
+
+
+    /**
+     * Filter items based on a range between two values.
+     *
+     * @param string $key
+     * @param mixed $from
+     * @param mixed $to
+     * @return static
+     */
+    public function whereBetween($key, $from, $to)
+    {
+        return new static(array_filter($this->items, function ($item) use ($key, $from, $to) {
+            return isset($item->$key) && $item->$key >= $from && $item->$key <= $to;
+        }));
+    }
 }

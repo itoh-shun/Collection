@@ -46,4 +46,54 @@ trait TransformationTrait {
         /** @phpstan-ignore-next-line */
         return new static(array_values($this->items));
     }
+    
+    /**
+     * Group the collection's items by a given key or using a callback.
+     *
+     * @param mixed $groupBy
+     * @return static
+     */
+    public function groupBy($groupBy)
+    {
+        $grouped = [];
+        foreach ($this->items as $item) {
+            $key = is_callable($groupBy) ? $groupBy($item) : (is_object($item) ? $item->$groupBy : $item[$groupBy]);
+            $grouped[$key][] = $item;
+        }
+        return new static($grouped);
+    }
+
+    /**
+     * Flatten a multi-dimensional collection into a single dimension.
+     *
+     * @param int $depth The maximum depth to flatten to.
+     * @return static
+     */
+    public function flatten($depth = INF)
+    {
+        $result = [];
+        $array = $this->items;
+
+        $iterator = function ($array, $currentDepth) use (&$iterator, &$result, $depth) {
+            if ($currentDepth > $depth) {
+                return;
+            }
+
+            foreach ($array as $item) {
+                if (is_array($item) || $item instanceof Collection) {
+                    if ($currentDepth < $depth) {
+                        $iterator($item instanceof Collection ? $item->all() : $item, $currentDepth + 1);
+                    } else {
+                        $result[] = $item->toArray();
+                    }
+                } else {
+                    $result[] = $item->toArray();
+                }
+            }
+        };
+
+        $iterator($array, 1);
+
+        return new static($result);
+    }
 }
