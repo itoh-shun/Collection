@@ -12,9 +12,10 @@ trait TransformationTrait {
      */
     public function pluck(string $value, ?string $key = null): Collection {
         $items = [];
+
         
         foreach ($this->items as $item) {
-            if (is_array($item) && isset($item[$value])) {
+            if (isset($item[$value])) {
                 if (is_null($key)) {
                     $items[] = $item[$value];
                 } else {

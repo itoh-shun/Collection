@@ -1,7 +1,6 @@
 <?php
 namespace SiLibrary\Traits;
 
-use SiLibrary\Collection;
 trait SearchTrait {
     /**
      * Search the collection for a given value and return the corresponding key if successful.

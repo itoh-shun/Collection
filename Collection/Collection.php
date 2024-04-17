@@ -1,6 +1,7 @@
 <?php
 namespace SiLibrary;
 
+use ArrayAccess;
 use ArrayIterator;
 use SiLibrary\Traits\AggregatesItemsTrait;
 use SiLibrary\Traits\ArrayableTrait;
@@ -11,14 +12,16 @@ use SiLibrary\Traits\PaginationTrait;
 use SiLibrary\Traits\PropertyAccessTrait;
 use SiLibrary\Traits\SearchTrait;
 use SiLibrary\Traits\TransformationTrait;
+use SiLibrary\Traits\SortTrait;
 use Countable;
 use IteratorAggregate;
 
-class Collection implements IteratorAggregate , Countable {
+class Collection implements IteratorAggregate , Countable, ArrayAccess {
     use ArrayableTrait, OperatesOnItemsTrait, AggregatesItemsTrait;
-    use AggregatesItemsTrait, ComparisonTrait, ManipulationTrait;
-    use OperatesOnItemsTrait, PaginationTrait, SearchTrait;
+    use ComparisonTrait, ManipulationTrait;
+    use PaginationTrait, SearchTrait;
     use TransformationTrait, PropertyAccessTrait;
+    use SortTrait;
 
     /**
      * The items contained in the collection.
@@ -60,5 +63,32 @@ class Collection implements IteratorAggregate , Countable {
      */
     public function count(): int {
         return count($this->items);
+    }
+
+    
+    public function offsetSet($offset, $value): void {
+        if (is_null($offset)) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    public function offsetExists($offset): bool {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetUnset($offset): void {
+        unset($this->items[$offset]);
+    }
+
+    /**
+     * offsetGet.
+     * 
+     * @param mixed $offset
+     * @return mixed
+     */
+    public function offsetGet($offset) {
+        return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
 }
